@@ -226,6 +226,26 @@ button:disabled,
   background: var(--accent-soft);
 }
 
+.donate-button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 16px;
+  border: 1px solid #d6a300;
+  border-radius: 8px;
+  background: #ffc439;
+  color: #173b67;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.donate-button:hover {
+  background: #f2b821;
+}
+
 .status {
   min-height: 52px;
   display: grid;
