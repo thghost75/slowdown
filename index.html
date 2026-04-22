@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Slow Down Studio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace" aria-labelledby="app-title">
+        <div class="intro">
+          <p class="eyebrow">Audio time stretcher</p>
+          <h1 id="app-title">Slow music down before you download it.</h1>
+          <p class="lede">
+            Drop in a track, pick a speed down to 1000% slower, preview the result, then save a WAV.
+          </p>
+        </div>
+
+        <div class="tool" aria-label="Music slowdown controls">
+          <label class="drop-zone" for="audio-file" id="drop-zone">
+            <span class="drop-title">Choose an audio file</span>
+            <span class="drop-detail" id="file-label">MP3, WAV, M4A, OGG, FLAC, and other browser-supported audio</span>
+            <input id="audio-file" type="file" accept="audio/*" />
+          </label>
+
+          <div class="control-row">
+            <label for="slowdown">Slowdown</label>
+            <div class="step-controls" aria-label="Adjust slowdown in 5 percent steps">
+              <button id="slowdown-down" class="step-button" type="button" aria-label="Decrease slowdown by 5 percent">-5%</button>
+              <output id="slowdown-output" for="slowdown">100%</output>
+              <button id="slowdown-up" class="step-button" type="button" aria-label="Increase slowdown by 5 percent">+5%</button>
+            </div>
+          </div>
+          <input id="slowdown" type="range" min="100" max="1000" step="5" value="100" />
+          <div class="range-notes" aria-hidden="true">
+            <span>Original</span>
+            <span>1000% slower</span>
+          </div>
+
+          <div class="actions">
+            <button id="preview-button" type="button" disabled>Render preview</button>
+            <a id="download-link" class="button secondary disabled" download="slowed-track.wav" aria-disabled="true">Download WAV</a>
+          </div>
+
+          <div class="status" role="status" aria-live="polite">
+            <span id="status-text">Waiting for a track.</span>
+            <progress id="progress" max="100" value="0" hidden></progress>
+          </div>
+
+          <audio id="player" controls preload="metadata"></audio>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
