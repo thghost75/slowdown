@@ -1,4 +1,4 @@
-[README.md](https://github.com/user-attachments/files/26969005/README.md)
+[README.md](https://github.com/user-attachments/files/26969229/README.md)
 # Slow Down Studio
 
 Slow Down Studio is a simple browser-based audio tool for slowing music down before downloading it. It runs locally in the browser, so there is no server setup, account system, or build process required.
@@ -28,20 +28,6 @@ The app can load audio formats supported by your browser, such as MP3, WAV, M4A,
 ## Notes
 
 Very long songs or very high slowdown settings can create large WAV files. For example, slowing a track down to `1000%` makes it 10 times longer, so the exported file can become much larger than the original.
-
-## Customization
-
-To change the PayPal donation link, edit the donate button in `index.html`:
-
-```html
-href="https://paypal.me/cormats"
-```
-
-To update the copyright text, edit the footer line in `index.html`:
-
-```html
-Copyright 2026 Umbra Studios. All rights reserved.
-```
 
 ## Project Files
 
