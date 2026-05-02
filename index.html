@@ -38,6 +38,23 @@
             <span>1000% slower</span>
           </div>
 
+          <div class="target-duration">
+            <div class="target-duration-header">
+              <label for="target-minutes">Target length</label>
+              <span id="original-length" class="duration-meta">Load a track to enable exact timing</span>
+            </div>
+            <div class="duration-inputs">
+              <label class="duration-field">
+                <span>Minutes</span>
+                <input id="target-minutes" type="number" min="0" step="1" value="1" disabled />
+              </label>
+              <label class="duration-field">
+                <span>Seconds</span>
+                <input id="target-seconds" type="number" min="0" max="59" step="1" value="0" disabled />
+              </label>
+            </div>
+          </div>
+
           <div class="actions">
             <button id="preview-button" type="button" disabled>Render preview</button>
             <a id="download-link" class="button secondary disabled" download="slowed-track.wav" aria-disabled="true">Download WAV</a>
@@ -55,7 +72,27 @@
           <audio id="player" controls preload="metadata"></audio>
         </div>
 
-        <p class="copyright">Copyright 2026 Umbra Studios. All rights reserved.</p>
+        <footer class="site-footer">
+          <div class="visit-counter" aria-label="Page visit counter">
+            <div id="sfcbgngua2sw5xpc73w5escm9kn5krw99nt"></div>
+            <script
+              type="text/javascript"
+              src="https://counter1.optistats.ovh/private/counter.js?c=bgngua2sw5xpc73w5escm9kn5krw99nt&down=async"
+              async
+            ></script>
+            <noscript>
+              <a href="https://www.freecounterstat.com" title="web page counter">
+                <img
+                  src="https://counter1.optistats.ovh/private/freecounterstat.php?c=bgngua2sw5xpc73w5escm9kn5krw99nt"
+                  border="0"
+                  title="web page counter"
+                  alt="web page counter"
+                />
+              </a>
+            </noscript>
+          </div>
+          <p class="copyright">Copyright 2026 Umbra Studios. All rights reserved.</p>
+        </footer>
       </section>
     </main>
 

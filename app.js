@@ -5,6 +5,9 @@ const slowdown = document.querySelector("#slowdown");
 const slowdownOutput = document.querySelector("#slowdown-output");
 const slowdownDown = document.querySelector("#slowdown-down");
 const slowdownUp = document.querySelector("#slowdown-up");
+const targetMinutes = document.querySelector("#target-minutes");
+const targetSeconds = document.querySelector("#target-seconds");
+const originalLength = document.querySelector("#original-length");
 const previewButton = document.querySelector("#preview-button");
 const downloadLink = document.querySelector("#download-link");
 const statusText = document.querySelector("#status-text");
@@ -28,14 +31,37 @@ const setStatus = (message, progressValue = null) => {
   progress.value = progressValue;
 };
 
+const formatPercent = (value) => {
+  const rounded = Math.round(value * 100) / 100;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+};
+
 const updateSlowdownLabel = () => {
-  slowdownOutput.value = `${slowdown.value}%`;
+  slowdownOutput.value = `${formatPercent(Number(slowdown.value))}%`;
   slowdownDown.disabled = Number(slowdown.value) <= Number(slowdown.min);
   slowdownUp.disabled = Number(slowdown.value) >= Number(slowdown.max);
 };
 
+const getTargetDurationInSeconds = () =>
+  Number(targetMinutes.value || 0) * 60 + Number(targetSeconds.value || 0);
+
+const setTargetDurationFields = (durationInSeconds) => {
+  const safeDuration = Math.max(0, Math.round(durationInSeconds));
+  targetMinutes.value = String(Math.floor(safeDuration / 60));
+  targetSeconds.value = String(safeDuration % 60);
+};
+
+const syncTargetDurationFromSlider = () => {
+  if (!sourceBuffer) {
+    return;
+  }
+
+  setTargetDurationFields(sourceBuffer.duration * (Number(slowdown.value) / 100));
+};
+
 const handleSlowdownChange = () => {
   updateSlowdownLabel();
+  syncTargetDurationFromSlider();
   if (sourceBuffer) {
     revokeRenderedUrl();
     setStatus("Setting changed. Render a fresh preview.");
@@ -64,6 +90,11 @@ const revokeRenderedUrl = () => {
 
 const getBaseName = (name) => name.replace(/\.[^/.]+$/, "") || "slowed-track";
 
+const enableTargetDurationInputs = (enabled) => {
+  targetMinutes.disabled = !enabled;
+  targetSeconds.disabled = !enabled;
+};
+
 const loadAudioFile = async (file) => {
   if (!file || !file.type.startsWith("audio/")) {
     setStatus("Choose an audio file to begin.");
@@ -83,11 +114,16 @@ const loadAudioFile = async (file) => {
     await audioContext.close();
 
     previewButton.disabled = false;
+    enableTargetDurationInputs(true);
+    originalLength.textContent = `Original length: ${formatDuration(sourceBuffer.duration)}`;
+    syncTargetDurationFromSlider();
     const seconds = formatDuration(sourceBuffer.duration);
     setStatus(`Ready. Original length: ${seconds}.`);
   } catch (error) {
     sourceBuffer = null;
     fileLabel.textContent = "Try another browser-supported audio file";
+    enableTargetDurationInputs(false);
+    originalLength.textContent = "Load a track to enable exact timing";
     setStatus("That file could not be decoded here. Try WAV, MP3, M4A, OGG, or FLAC.");
     console.error(error);
   }
@@ -164,13 +200,54 @@ const writeString = (view, offset, value) => {
 };
 
 const formatDuration = (duration) => {
-  const minutes = Math.floor(duration / 60);
-  const seconds = Math.round(duration % 60).toString().padStart(2, "0");
-  return `${minutes}:${seconds}`;
+  const rounded = Math.max(0, Math.round(duration));
+  const hours = Math.floor(rounded / 3600);
+  const minutes = Math.floor((rounded % 3600) / 60);
+  const seconds = rounded % 60;
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  }
+
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+};
+
+const applyTargetDuration = () => {
+  if (!sourceBuffer) {
+    return false;
+  }
+
+  const requestedDuration = getTargetDurationInSeconds();
+  if (!Number.isFinite(requestedDuration) || requestedDuration <= 0) {
+    setStatus("Enter a target length greater than zero.");
+    return false;
+  }
+
+  const unclampedPercent = (requestedDuration / sourceBuffer.duration) * 100;
+  const clampedPercent = Math.max(Number(slowdown.min), Math.min(Number(slowdown.max), unclampedPercent));
+  slowdown.value = clampedPercent.toFixed(2);
+  updateSlowdownLabel();
+
+  if (renderedUrl) {
+    revokeRenderedUrl();
+  }
+
+  if (clampedPercent !== unclampedPercent) {
+    setTargetDurationFields(sourceBuffer.duration * (clampedPercent / 100));
+    setStatus("Target length was clamped to the supported slowdown range.");
+  } else {
+    setStatus("Target length updated. Render a fresh preview.");
+  }
+
+  return true;
 };
 
 const renderPreview = async () => {
   if (!sourceBuffer) {
+    return;
+  }
+
+  if (!applyTargetDuration()) {
     return;
   }
 
@@ -217,6 +294,22 @@ fileInput.addEventListener("change", (event) => {
 slowdown.addEventListener("input", handleSlowdownChange);
 slowdownDown.addEventListener("click", () => stepSlowdown(-1));
 slowdownUp.addEventListener("click", () => stepSlowdown(1));
+targetMinutes.addEventListener("input", () => {
+  if (!sourceBuffer) {
+    return;
+  }
+
+  applyTargetDuration();
+});
+targetSeconds.addEventListener("input", () => {
+  if (!sourceBuffer) {
+    return;
+  }
+
+  const normalizedSeconds = Math.max(0, Math.min(59, Number(targetSeconds.value || 0)));
+  targetSeconds.value = String(normalizedSeconds);
+  applyTargetDuration();
+});
 
 previewButton.addEventListener("click", renderPreview);
 
@@ -240,3 +333,4 @@ dropZone.addEventListener("drop", (event) => {
 });
 
 updateSlowdownLabel();
+enableTargetDurationInputs(false);
